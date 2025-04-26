@@ -11,9 +11,9 @@ using namespace creeper;
 template <point_concept Point> class IkdTree<Point>::Impl {
 
     struct Node {
-        std::weak_ptr<Node> father = nullptr;
-        std::shared_ptr<Node> left = nullptr;
-        std::shared_ptr<Node> right = nullptr;
+        Node* father = nullptr;
+        std::unique_ptr<Node> left = nullptr;
+        std::unique_ptr<Node> right = nullptr;
 
         Area area { Point { 0, 0, 0 }, Point { 0, 0, 0 } };
         Point point { 0, 0, 0 };
@@ -97,13 +97,13 @@ private:
         return { .max = max, .min = min };
     }
 
-    static std::optional<std::shared_ptr<Node>> _internal_build(
+    static std::optional<std::unique_ptr<Node>> _internal_build(
         Points& points, std::size_t begin, std::size_t end) {
 
         if (begin > end)
             return std::nullopt;
 
-        auto result = std::shared_ptr<Node>();
+        auto result = std::unique_ptr<Node>();
 
         // 寻找最佳划分轴
         auto area = _internal_make_area();
@@ -171,9 +171,9 @@ private:
         }
 
         if (l)
-            l->father = root;
+            l->father = root.get();
         if (r)
-            r->father = root;
+            r->father = root.get();
     }
 };
 
